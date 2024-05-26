@@ -1,9 +1,9 @@
 #include "water_pump.h"
 #include <Arduino.h>
 
-const int WaterPumpMotorI1 = 2;     
-const int WaterPumpMotorI2 = 3; 
-const int WaterPumpMotorPWM = 11;
+const int WaterPumpMotorI1 = 6;     
+const int WaterPumpMotorI2 = 7; 
+const int WaterPumpMotorPWM = 13;
 
 WaterPump::WaterPump() {}
 

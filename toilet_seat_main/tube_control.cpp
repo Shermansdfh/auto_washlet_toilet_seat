@@ -2,8 +2,8 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-const int servo_angular_pin = 1;
-const int servo_linear_pin = 2;
+const int servo_angular_pin = 9;
+const int servo_linear_pin = 10;
 Servo servo_angular, servo_linear;
 
 TubeControl::TubeControl() {}

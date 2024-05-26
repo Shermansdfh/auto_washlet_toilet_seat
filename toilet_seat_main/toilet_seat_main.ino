@@ -4,9 +4,9 @@
 #include <Arduino_APDS9960.h>
 #include <ezButton.h>
 
-#define VRX_PIN  A0 
-#define VRY_PIN  A1 
-#define SW_PIN   A2 
+#define VRX_PIN  A13 
+#define VRY_PIN  A14
+#define SW_PIN   A15
 
 int x_val = 0, y_val = 0, b_val = 0;
 ezButton button(SW_PIN);

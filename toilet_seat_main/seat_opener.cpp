@@ -4,9 +4,9 @@
 const int UpperMotorI1 = 2;     
 const int UpperMotorI2 = 3; 
 const int UpperMotorPWM = 11;
-const int LowerMotorI1 = 2;     
-const int LowerMotorI2 = 3; 
-const int LowerMotorPWM = 11;
+const int LowerMotorI1 = 4;     
+const int LowerMotorI2 = 5; 
+const int LowerMotorPWM = 12;
 
 SeatOpener::SeatOpener() {}
 
