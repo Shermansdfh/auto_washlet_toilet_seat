@@ -13,11 +13,11 @@ void TubeControl::init() {
     servo_linear.attach(servo_linear_pin);
 }
 
-void TubeControl::TubeForward(int ang) {
+void TubeControl::tubeForward(int ang) {
     servo_linear.write(ang);
 }
 
-void TubeControl::TubeRotate(int ang) {
+void TubeControl::tubeRotate(int ang) {
 	servo_angular.write(ang);
 }
 

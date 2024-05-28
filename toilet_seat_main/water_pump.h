@@ -7,8 +7,8 @@ class WaterPump {
     public:
         WaterPump();
         void init();
-        void WaterPumpOn();
-        void WaterPumpOff();
+        void waterPumpOn();
+        void waterPumpOff();
 };
 
 extern WaterPump water_pump;

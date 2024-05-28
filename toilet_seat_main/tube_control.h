@@ -8,8 +8,8 @@ class TubeControl {
     public:
         TubeControl();
         void init();
-        void TubeForward(int ang);
-        void TubeRotate(int ang);
+        void tubeForward(int ang);
+        void tubeRotate(int ang);
 };
 
 extern TubeControl tube_controller;

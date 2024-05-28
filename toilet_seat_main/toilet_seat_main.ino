@@ -3,17 +3,17 @@
 #include "tube_control.h"
 #include <Arduino_APDS9960.h>
 #include <ezButton.h>
+#include <Arduino.h>
+#include <cmath>
+#include <map>
 
+/******** Define Pin & Create Module Object ********/
 #define VRX_PIN  A13 
 #define VRY_PIN  A14
 #define SW_PIN   A15
 
-int x_val = 0, y_val = 0, b_val = 0;
-ezButton button(SW_PIN);
-
 void setup() {
 	Serial.begin(9600);
-
 	seat_opener.init();
 	water_pump.init();
 	tube_controller.init();
@@ -21,58 +21,106 @@ void setup() {
 	
     if (!APDS.begin()) {
 		Serial.println("failed to initialize device! Please check your wiring.");
-	}
-	else {
+	} else {
 		Serial.println("Detecting gestures ...");
 	}
 }
+/******** End Define Pin & Create Module Object ********/
+
+/******** Initialize Variable ********/
+int prevJoystickValueX  = 0, prevJoystickValueY = 0;
+bool isPumpingWater = false;
+bool isJoystickMovingX = false, isJoystickMovingY = false;
+ezButton button(SW_PIN);
+/******** End Initialize Variable ********/
+
+/******** Declare Function Prototype ********/
+int get_gesture();
+/******** End Declare Function Prototype ********/
 
 void loop() {
 	button.loop();
 
-	x_val = analogRead(VRX_PIN);
-	y_val = analogRead(VRY_PIN);
-	b_val = button.getState();
+	int joystickValueX = analogRead(VRX_PIN);
+	int joystickValueY = analogRead(VRY_PIN);
+	int joystickValueB = button.getState();
+
+	/******** Pump Control ********/
+	/*
+	 * This section handles the control and operations related to the pump.
+     */
 
 	if (button.isPressed()) {
 		Serial.println("BUTTON: The button is pressed");
-		// TODO do something here
+		if (isPumpingWater) {
+			water_pump.waterPumpOff();
+            isPumpingWater = false;
+		} else {
+			water_pump.waterPumpOn();
+            isPumpingWater = true;
+		}
 	}
 
-	if (button.isReleased()) {
-		Serial.println("BUTTON: The button is released");
-		// TODO do something here
+	/******* End Pump Control *******/
+
+	/******** Tube Control ********/
+	/*
+	 * This section handles the control and operations related to the tube.
+     */
+
+	// Check if the joystick is released on the X-axis
+	if (std::abs(prevJoystickValueX - 512) < 10) {
+		isJoystickMovingX = false;  // Stop servo movement
+	} else {
+		isJoystickMovingX = true;   // Start servo movement
 	}
 
+	if (std::abs(prevJoystickValueY - 512) < 10) {
+		isJoystickMovingY = false;  // Stop servo movement
+	} else {
+		isJoystickMovingY = true;   // Start servo movement
+	}
+
+	// Update the servo position if the joystick is not in the middle position
+	if (isJoystickMovingX) {
+		int servoAngle = std::map(joystickValueX, 0, 1023, 0, 180);  // Map joystick value to servo angle
+		tube_controller.tubeRotate(servoAngle);                             // Set the servo position
+		prevJoystickValueX = joystickValueX;                     // Update the previous joystick value
+	}
+
+	if (isJoystickMovingY) {
+		int servoAngle = std::map(joystickValueY, 0, 1023, 0, 180);  // Map joystick value to servo angle
+		tube_controller.tubeForward(servoAngle);                             // Set the servo position
+		prevJoystickValueY = joystickValueY;                     // Update the previous joystick value
+	}
+
+	/******* End Tube Control *******/
+
+	/******** Seat Control ********/
+	/*
+	 * This section handles the control and operations related to the seat.
+     */
+
+    int currentGesture = get_gesture();
+
+    if (currentGesture == GESTURE_RIGHT) {
+		Serial.println("APDS: Right gesture detected");
+        seat_opener.openFirstLayer();
+    } else if (currentGesture == GESTURE_LEFT) {
+		Serial.println("APDS: Left gesture detected");
+        seat_opener.openSecondLayer();
+    } else if (currentGesture == GESTURE_UP) {
+		Serial.println("APDS: Up gesture detected");
+        seat_opener.closeAll();
+    }
+
+	/******* End Seat Control *******/
+}
+
+
+int get_gesture()  {
 	if (APDS.gestureAvailable()) {
 		int gesture = APDS.readGesture();
-
-		switch (gesture) {
-		case GESTURE_UP:
-			Serial.println("GESTURE: Detected UP gesture");
-			break;
-		case GESTURE_DOWN:
-			Serial.println("GESTURE: Detected DOWN gesture");
-			break;
-		case GESTURE_LEFT:
-			Serial.println("GESTURE: Detected LEFT gesture");
-			break;
-		case GESTURE_RIGHT:
-			Serial.println("GESTURE: Detected RIGHT gesture");
-			break;
-		default:
-			// ignore
-			break;
-		}
+        return gesture;
   	}
-
-	if (APDS.proximityAvailable()) {
-		// - 0   => close
-		// - 255 => far
-		// - -1  => error
-		int proximity = APDS.readProximity();
-
-		// print value to the Serial Monitor
-		Serial.println(proximity);
-	}
 }

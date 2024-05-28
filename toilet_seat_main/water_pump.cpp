@@ -13,13 +13,13 @@ void WaterPump::init() {
     pinMode(WaterPumpMotorPWM, OUTPUT);
 }
 
-void WaterPump::WaterPumpOn() {
+void WaterPump::waterPumpOn() {
     analogWrite(WaterPumpMotorPWM, 255); 
     digitalWrite(WaterPumpMotorI1, LOW);
     digitalWrite(WaterPumpMotorI2, HIGH);
 }
 
-void WaterPump::WaterPumpOff() {
+void WaterPump::waterPumpOff() {
     analogWrite(WaterPumpMotorPWM, 0); 
     digitalWrite(WaterPumpMotorI1, LOW);
     digitalWrite(WaterPumpMotorI2, HIGH);
