@@ -26,7 +26,7 @@ class SeatOpener {
         const int FirstLayerOpenTime = 200;
         const int SecondLayerOpenTime = 200;
         const int FirstLayerCloseTime = 200;
-        const int SecondLayerOpenTime = 200;
+        const int SecondLayerCloseTime = 200;
         const int DelayBetweenTwoOpening = 200;
         const int DelayBetweenTwoClosing = 200;
         
