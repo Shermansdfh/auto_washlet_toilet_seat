@@ -1,18 +1,12 @@
 #include "water_pump.h"
 #include <Arduino.h>
 
-#define DEBUG
-
-const int WaterPumpMotorI1 = 6;     
-const int WaterPumpMotorI2 = 7; 
-const int WaterPumpMotorPWM = 13;
+//#define DEBUG
 
 WaterPump::WaterPump() {}
 
 void WaterPump::init() {
-#ifdef DEBUG
     Serial.println("WaterPump: waterPump initialized");
-#endif
 
 #ifndef DEBUG
     pinMode(WaterPumpMotorI1, OUTPUT);
@@ -22,26 +16,22 @@ void WaterPump::init() {
 }
 
 void WaterPump::waterPumpOn() {
-#ifdef DEBUG
     Serial.println("WaterPump: waterPumpOn");
-#endif
 
 #ifndef DEBUG
-    analogWrite(WaterPumpMotorPWM, 255); 
+    analogWrite(WaterPumpMotorPWM, 200); 
     digitalWrite(WaterPumpMotorI1, LOW);
     digitalWrite(WaterPumpMotorI2, HIGH);
 #endif
 }
 
 void WaterPump::waterPumpOff() {
-#ifdef DEBUG
     Serial.println("WaterPump: waterPumpOff");
-#endif
 
 #ifndef DEBUG
     analogWrite(WaterPumpMotorPWM, 0); 
-    digitalWrite(WaterPumpMotorI1, LOW);
-    digitalWrite(WaterPumpMotorI2, HIGH);
+    digitalWrite(WaterPumpMotorI1, HIGH);
+    digitalWrite(WaterPumpMotorI2, LOW);
 #endif
 }
 

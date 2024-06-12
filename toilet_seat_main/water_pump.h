@@ -9,6 +9,11 @@ class WaterPump {
         void init();
         void waterPumpOn();
         void waterPumpOff();
+
+    private:
+        const int WaterPumpMotorI1 = 6;     
+        const int WaterPumpMotorI2 = 7; 
+        const int WaterPumpMotorPWM = 13;
 };
 
 extern WaterPump water_pump;

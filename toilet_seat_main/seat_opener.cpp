@@ -1,120 +1,119 @@
 #include "seat_opener.h"
 #include <Arduino.h>
 
-#define DEBUG
+//#define DEBUG
 
 SeatOpener::SeatOpener() {}
 
 void SeatOpener::init() {
-#ifdef DEBUG
     Serial.println("SeatOpener: Seat opener initialized.");
-#endif
 
 #ifndef DEBUG
-    pinMode(UpperMotorI1, OUTPUT);
-    pinMode(UpperMotorI2, OUTPUT);
-    pinMode(UpperMotorPWM, OUTPUT);
-    pinMode(LowerMotorI1, OUTPUT);
-    pinMode(LowerMotorI2, OUTPUT);
-    pinMode(LowerMotorPWM, OUTPUT);
+    pinMode(UpperMotorAIN1, OUTPUT);
+    pinMode(UpperMotorAIN2, OUTPUT);
+    pinMode(UpperMotorPWMA, OUTPUT);
+    pinMode(LowerMotorBIN1, OUTPUT);
+    pinMode(LowerMotorBIN2, OUTPUT);
+    pinMode(LowerMotorPWMB, OUTPUT);
 #endif
 
     current_state = ALL_CLOSED;
 }
 
 void SeatOpener::upperMotorWriting(double v) {
-#ifdef DEBUG
     Serial.print("upperMotorWriting: ");
     Serial.println(v);
-#endif
 
 #ifndef DEBUG
     if (v >= 0) {
-        analogWrite(UpperMotorPWM, v);
-        digitalWrite(UpperMotorI1, LOW);
-        digitalWrite(UpperMotorI2, HIGH);
+        Serial.println("uppermMotorWriting with v>0");
+        analogWrite(UpperMotorPWMA, v);
+        digitalWrite(UpperMotorAIN1, LOW);
+        digitalWrite(UpperMotorAIN2, HIGH);
     } else {
-        analogWrite(UpperMotorPWM, -v);
-        digitalWrite(UpperMotorI1, HIGH);
-        digitalWrite(UpperMotorI2, LOW);
+        analogWrite(UpperMotorPWMA, -v);
+        digitalWrite(UpperMotorAIN1, HIGH);
+        digitalWrite(UpperMotorAIN2, LOW);
     }
 #endif
 }
 
 void SeatOpener::lowerMotorWriting(double v) {
-#ifdef DEBUG
     Serial.print("lowerMotorWriting: ");
     Serial.println(v);
-#endif
 
 #ifndef DEBUG
     if (v >= 0) {
-        analogWrite(LowerMotorPWM, v);
-        digitalWrite(LowerMotorI1, LOW);
-        digitalWrite(LowerMotorI2, HIGH);
+        Serial.println("lowerMotorWriting with v>0");
+        analogWrite(LowerMotorPWMB, v);
+        digitalWrite(LowerMotorBIN1, LOW);
+        digitalWrite(LowerMotorBIN2, HIGH);
     } else {
-        analogWrite(LowerMotorPWM, -v);
-        digitalWrite(LowerMotorI1, HIGH);
-        digitalWrite(LowerMotorI2, LOW);
+        analogWrite(LowerMotorPWMB, -v);
+        digitalWrite(LowerMotorBIN1, HIGH);
+        digitalWrite(LowerMotorBIN2, LOW);
     }
 #endif
 }
 
 void SeatOpener::openFirstLayer() {
-#ifdef DEBUG
     Serial.println("SeatOpener: openFirstLayer called.");
-#endif
-    if (current_state == SeatState::ALL_CLOSED) { 
-        upperMotorWriting(200);
+    //if (current_state == SeatState::ALL_CLOSED) { 
+    if (true) {
+        upperMotorWriting(255);
         delay(FirstLayerOpenTime);
-        current_state = FIRST_LAYER_OPENED;
+        upperMotorWriting(0);
+    //    current_state = FIRST_LAYER_OPENED;
     } else {
         // TODO: need to handle wrong state called
+        Serial.print("SeatOpener: Current state ain't ALL_CLOSED.");
+        Serial.print("It's");
+        Serial.print(current_state);
     }
 }
 void SeatOpener::openSecondLayer() {
-#ifdef DEBUG
     Serial.println("SeatOpener: openSecondLayer called.");
-#endif
-    if (current_state == SeatState::FIRST_LAYER_OPENED) { 
-        lowerMotorWriting(200);
+
+    //if (current_state == SeatState::FIRST_LAYER_OPENED) { 
+    if (true) {
+        lowerMotorWriting(255);
         delay(SecondLayerOpenTime);
-        current_state = SECOND_LAYER_OPENED;
+        lowerMotorWriting(0);
+        // current_state = SECOND_LAYER_OPENED;
     } else {
         // TODO: need to handle wrong state called
     }
 }
 
 void SeatOpener::closeFirstLayer() {
-#ifdef DEBUG
     Serial.println("SeatOpener: closeFirstLayer called.");
-#endif
-    if (current_state == SeatState::FIRST_LAYER_OPENED) { 
-        upperMotorWriting(-200);
+    //if (current_state == SeatState::FIRST_LAYER_OPENED) { 
+    if (true) {
+        Serial.println("SeatOpener: Closing first layer.");
+        upperMotorWriting(-100);
         delay(FirstLayerCloseTime);
-        current_state = ALL_CLOSED;
-    } else {
+        upperMotorWriting(0);
+        // current_state = ALL_CLOSED;    } else {
         // TODO: need to handle wrong state called
     }
 }
 
 void SeatOpener::closeSecondLayer() {
-#ifdef DEBUG
     Serial.println("SeatOpener: closeSecondLayer called.");
-#endif
-    if (current_state == SeatState::SECOND_LAYER_OPENED) { 
-        lowerMotorWriting(-200);
-        delay(SecondLayerOpenTime);
-        current_state = FIRST_LAYER_OPENED;
+    // if (current_state == SeatState::SECOND_LAYER_OPENED) { 
+    if (true) {
+        Serial.println("SeatOpener: Closing second layer.");
+        lowerMotorWriting(-100);
+        delay(SecondLayerCloseTime);
+        lowerMotorWriting(0);
+        //current_state = FIRST_LAYER_OPENED;
     } else {
         // TODO: need to handle wrong state called
     }
 }
 
 void SeatOpener::openAll() {
-#ifdef DEBUG
     Serial.println("SeatOpener: openAll called.");
-#endif
     bool state_correct = true;
     if (current_state == SeatState::ALL_CLOSED) { 
         openFirstLayer();
@@ -134,9 +133,7 @@ void SeatOpener::openAll() {
 }
 
 void SeatOpener::closeAll() {
-#ifdef DEBUG
     Serial.println("SeatOpener: closeAll called.");
-#endif
     bool state_correct = true;
     if (current_state == SeatState::SECOND_LAYER_OPENED) { 
         closeSecondLayer();

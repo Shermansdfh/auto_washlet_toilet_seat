@@ -24,7 +24,7 @@ void setup() {
 	button.setDebounceTime(50);
 	
     if (!APDS.begin()) {
-		Serial.println("failed to initialize device! Please check your wiring.");
+		Serial.println("Failed to initialize device! Please check your wiring.");
 	} else {
 		Serial.println("Detecting gestures ...");
 	}
@@ -35,6 +35,7 @@ void setup() {
 int prevJoystickValueX  = 0, prevJoystickValueY = 0;
 bool isPumpingWater = false;
 bool isJoystickMovingX = false, isJoystickMovingY = false;
+int railServoAngle = 90, tubeServoAngle = 90;
 /******** End Initialize Variable ********/
 
 /******** Declare Function Prototype ********/
@@ -42,15 +43,18 @@ bool isJoystickMovingX = false, isJoystickMovingY = false;
 
 void loop() {
 	button.loop();
-
 	int joystickValueX = analogRead(VRX_PIN);
 	int joystickValueY = analogRead(VRY_PIN);
 	int joystickValueB = button.getState();
-
 	/******** Pump Control ********/
 	/*
 	 * This section handles the control and operations related to the pump.
      */
+/*
+    analogWrite(6, 200); 
+    digitalWrite(7, LOW);
+    digitalWrite(13, HIGH);
+*/
 
 	if (button.isPressed()) {
 		Serial.println("BUTTON: The button is pressed");
@@ -71,14 +75,14 @@ void loop() {
      */
 
 	// Check if the joystick is released on the X-axis
-	if (abs(joystickValueX - 512) < 50) {
+	if (abs(joystickValueX - 512) < 100) {
 		isJoystickMovingX = false;  // Stop servo movement
 		// Serial.println(joystickValueX);
 	} else {
 		isJoystickMovingX = true;   // Start servo movement
 	}
 
-	if (abs(joystickValueY - 512) < 50) {
+	if (abs(joystickValueY - 512) < 100) {
 		isJoystickMovingY = false;  // Stop servo movement
 		// Serial.println(joystickValueY);
 	} else {
@@ -86,19 +90,36 @@ void loop() {
 	}
 
 	// Update the servo position if the joystick is not in the middle position
+    /*
+    	if (isJoystickMovingX && joystickValueX > 512) {
+        railServoAngle += 5;
+		tube_controller.tubeForward(railServoAngle);                             // Set the servo position
+	} else if (isJoystickMovingX && joystickValueX < 512) {
+        railServoAngle -= 5;
+		tube_controller.tubeForward(railServoAngle);
+    }
+    */
+
 	if (isJoystickMovingX) {
-		int servoAngle = map(joystickValueX, 0, 1023, 0, 180);  // Map joystick value to servo angle
-		tube_controller.tubeRotate(servoAngle);                             // Set the servo position
+		int servoAngle = map(joystickValueX, 0, 1023, 40, 140);  // Map joystick value to servo angle
+		tube_controller.tubeForward(servoAngle);                             // Set the servo position
 		prevJoystickValueX = joystickValueX;                     // Update the previous joystick value
 	}
 
 	if (isJoystickMovingY) {
-		int servoAngle = map(joystickValueY, 0, 1023, 0, 180);  // Map joystick value to servo angle
-		tube_controller.tubeForward(servoAngle);                             // Set the servo position
+		int servoAngle = 180 - map(joystickValueY, 0, 1023, 50, 150);  // Map joystick value to servo angle
+		tube_controller.tubeRotate(servoAngle);                             // Set the servo position
 		prevJoystickValueY = joystickValueY;                     // Update the previous joystick value
 	}
-
-	// Serial.println(joystickValueB);
+    /*
+    if (isJoystickMovingY && joystickValueY > 512) {
+        tubeServoAngle -= 10;
+		tube_controller.tubeRotate(tubeServoAngle);                             // Set the servo position
+	} else if (isJoystickMovingY && joystickValueY < 512) {
+        tubeServoAngle += 10;
+		tube_controller.tubeRotate(tubeServoAngle);
+    }
+    */
 
 	/******* End Tube Control *******/
 
@@ -106,7 +127,7 @@ void loop() {
 	/*
 	 * This section handles the control and operations related to the seat.
      */
-
+	
 	if (APDS.gestureAvailable()) {
     	// a gesture was detected, read and print to Serial Monitor
 		int gesture = APDS.readGesture();
@@ -114,21 +135,22 @@ void loop() {
 		switch (gesture) {
 			case GESTURE_UP:
 				Serial.println("APDS: Up gesture detected");
-				seat_opener.closeAll();
+				seat_opener.openSecondLayer();
 				break;
 
 			case GESTURE_DOWN:
 				Serial.println("APDS: Down gesture detected");
+				seat_opener.closeSecondLayer();
 				break;
 
 			case GESTURE_LEFT:
 				Serial.println("APDS: Left gesture detected");
-				seat_opener.openSecondLayer();
+				seat_opener.openFirstLayer();
 				break;
 
 			case GESTURE_RIGHT:
 				Serial.println("APDS: Right gesture detected");
-				seat_opener.openFirstLayer();
+				seat_opener.closeFirstLayer();
 				break;
 
 			default:
